@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f5e5a">
+<title>Gestão de Cartórios</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gestão">
+<script src="config.js"></script>
+<style>
+:root{
+  --bg:#f4f6f5;--card:#fff;--ink:#16211f;--muted:#5d6b68;--line:#dfe5e3;
+  --pri:#0f5e5a;--pri-ink:#fff;--pri-soft:#e3f0ee;
+  --ok:#1f7a45;--ok-soft:#e2f3e8;--warn:#9a6200;--warn-soft:#fdf1dc;--bad:#b3261e;--bad-soft:#fbe4e2;--info:#2f5aa8;--info-soft:#e5ecfa;
+  --r:12px;--sh:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f1514;--card:#17201f;--ink:#e6eeec;--muted:#93a3a0;--line:#2a3735;
+  --pri:#4fb3aa;--pri-ink:#062220;--pri-soft:#173533;
+  --ok:#5cc98a;--ok-soft:#163424;--warn:#e9b04f;--warn-soft:#3a2c12;--bad:#f2867e;--bad-soft:#3d1c1a;--info:#8fb2f2;--info-soft:#1b2a45;
+  --sh:none;}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:20;background:var(--pri);color:var(--pri-ink);padding:10px 14px;display:flex;gap:10px;align-items:center}
+header h1{font-size:16px;margin:0;font-weight:650;white-space:nowrap}
+header select{flex:1;min-width:0;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);color:inherit;border-radius:8px;padding:7px 8px}
+header select option{color:#16211f}
+.iconbtn{background:none;border:0;color:inherit;padding:6px;border-radius:8px;cursor:pointer;display:grid;place-items:center}
+.iconbtn:hover{background:rgba(255,255,255,.12)}
+main{max-width:920px;margin:0 auto;padding:14px 14px 96px}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center}
+nav .in{display:flex;max-width:920px;width:100%}
+nav a{flex:1;text-decoration:none;color:var(--muted);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 10px}
+nav a.on{color:var(--pri);font-weight:650}
+nav svg{width:22px;height:22px}
+h2{font-size:19px;margin:4px 0 12px}
+h3{font-size:15px;margin:18px 0 8px;color:var(--muted);font-weight:650;text-transform:uppercase;letter-spacing:.03em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:10px}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;box-shadow:var(--sh)}
+.kpi .l{font-size:12px;color:var(--muted)}
+.kpi .v{font-size:21px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.pos{color:var(--ok)}.neg{color:var(--bad)}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:600}
+.btn.pri{background:var(--pri);color:var(--pri-ink);border-color:var(--pri)}
+.btn.bad{color:var(--bad)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.fab{position:fixed;right:18px;bottom:82px;z-index:15;border-radius:28px;padding:13px 18px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+@media(min-width:960px){.fab{right:calc(50% - 460px + 18px)}}
+.list .it{display:flex;gap:12px;align-items:flex-start;padding:11px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.list .it:last-child{border-bottom:0}
+.list .it .t{font-weight:600}
+.list .it .grow{flex:1;min-width:0}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--pri-soft);color:var(--pri);white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}.chip.warn{background:var(--warn-soft);color:var(--warn)}.chip.bad{background:var(--bad-soft);color:var(--bad)}.chip.info{background:var(--info-soft);color:var(--info)}.chip.mute{background:var(--line);color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.chips button{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:5px 12px;font-size:13px;cursor:pointer}
+.chips button.on{background:var(--pri);color:var(--pri-ink);border-color:var(--pri)}
+.alert{display:flex;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:8px;font-size:14px;background:var(--warn-soft);color:var(--ink)}
+.alert.bad{background:var(--bad-soft)}.alert.info{background:var(--info-soft)}.alert.ok{background:var(--ok-soft)}
+.alert b{white-space:nowrap}
+.bar{height:8px;border-radius:8px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--pri);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600}
+tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+tr.sub td{font-weight:650;background:var(--pri-soft)}
+tr.inf td{color:var(--muted);font-style:italic}
+.code{color:var(--muted);font-variant-numeric:tabular-nums;width:56px}
+label.f{display:block;margin-bottom:12px}
+label.f>span{display:block;font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:600}
+input[type=text],input[type=number],input[type=date],input[type=month],input:not([type]),select,textarea{width:100%;border:1px solid var(--line);background:var(--card);border-radius:9px;padding:9px 10px}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--pri);outline-offset:-1px}
+.cb{display:flex;gap:9px;align-items:flex-start;padding:6px 0;cursor:pointer}
+.cb input{margin-top:3px;width:17px;height:17px;accent-color:var(--pri)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#modal{position:fixed;inset:0;z-index:50;display:none;background:rgba(0,0,0,.42);align-items:flex-end;justify-content:center}
+#modal.open{display:flex}
+#modal .box{background:var(--card);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px 22px}
+@media(min-width:700px){#modal{align-items:center}#modal .box{border-radius:16px}}
+#modal .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+#modal .hd h2{margin:0}
+#modal .ft{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;display:none;max-width:90vw}
+.empty{text-align:center;padding:30px 10px;color:var(--muted)}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:13px;word-break:break-all}
+.minuta{white-space:pre-wrap;font-family:Georgia,"Times New Roman",serif;font-size:15px;line-height:1.6}
+.hist{font-size:13px;border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:6px 0}
+.steps{display:flex;gap:4px;margin:6px 0 12px}
+.steps i{flex:1;height:5px;border-radius:5px;background:var(--line)}
+.steps i.on{background:var(--pri)}
+.areah{display:flex;justify-content:space-between;align-items:center;margin:18px 0 6px}
+.areah b{font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Gestão</h1>
+  <select id="sel" aria-label="Serventia"></select>
+  <button class="iconbtn" data-act="go" data-tab="cadastros" id="gear" aria-label="Cadastros" style="display:none">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
+  <button class="iconbtn" data-act="logout" id="logout" aria-label="Sair" title="Sair" style="display:none">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+  </button>
+</header>
+<main id="main"><div class="empty">Conectando…</div></main>
+<nav><div class="in" id="nav"></div></nav>
+<div id="modal"><div class="box" id="mbox"></div></div>
+<div id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const CFG = window.APP_CONFIG || {};
+const sb = (CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY) ? createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY) : null;
+/* ===================== Constantes ===================== */
+const ICON = {
+  inicio:'<path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/>',
+  financeiro:'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M16 15h2"/>',
+  rh:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 6 4.8"/>',
+  pqta:'<circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/>',
+  contas:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
+  minutas:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'
+};
+const TABS = [['inicio','Início'],['financeiro','Financeiro'],['rh','RH'],['pqta','PQTA'],['contas','Contas'],['minutas','Minutas']];
+
+const COD = [
+ ['1.1','Receitas de emolumentos'],['1.2','Atos gratuitos (compensação)'],['1.3','Complementação de renda mínima'],
+ ['1.3.1','IR retido em gratuitos/renda mínima (informativo)'],['1.4','Receitas financeiras/aplicações'],['1.5','Outras receitas'],
+ ['2.1.1','Folha de pagamento (líquido)'],['2.1.2','Encargos (GPS/GRF/FGTS)'],['2.1.3','Provisões realizadas'],
+ ['2.1.3.1','Débitos da conta de provisão (informativo)'],['2.1.4','Plano médico/odontológico'],['2.1.5','Outras despesas de pessoal'],
+ ['2.2.1','Energia elétrica'],['2.2.2','Água e esgoto'],['2.2.3','Telefone/internet'],['2.2.4','Aluguel (e IPTU)'],
+ ['2.2.5','Serviços contábeis'],['2.2.6','Serviços advocatícios'],['2.2.7','Informática'],['2.2.8','Serviços postais'],
+ ['2.2.9','Material de consumo'],['2.2.10','Outras operacionais'],
+ ['2.3.1','Móveis e utensílios'],['2.3.2','Máquinas e equipamentos'],['2.3.3','Outros/intangíveis'],
+ ['2.4.1','Restituições de emolumentos']
+];
+const CODN = Object.fromEntries(COD);
+const INFO = new Set(['1.3.1','2.1.3.1']);
+const AUT = new Set(['2.2.5','2.2.6','2.2.7','2.3.1','2.3.2','2.3.3']);
+const G = {
+  rec:['1.1','1.2','1.3','1.4','1.5'],
+  g21:['2.1.1','2.1.2','2.1.3','2.1.4','2.1.5'],
+  g22:['2.2.1','2.2.2','2.2.3','2.2.4','2.2.5','2.2.6','2.2.7','2.2.8','2.2.9','2.2.10'],
+  g23:['2.3.1','2.3.2','2.3.3'], g24:['2.4.1']
+};
+
+const AREAS = {A:'Estratégia',B:'Gestão operacional',C:'Gestão de pessoas',D:'Instalações',E:'Segurança e saúde ocupacional',F:'Gestão socioambiental',G:'Informatização e dados',H:'Inovação',I:'Compliance',J:'Continuidade do negócio'};
+const PQ = [
+ [1,'A','Missão, visão e valores divulgados',1],[2,'A','Orientação e planejamento estratégico',1.5],[3,'A','Objetivos com indicadores monitorados',1.5],
+ [4,'A','Planejamento dos objetivos (ações, recursos, prazos, responsáveis)',1.5],[5,'A','Análise do desempenho pela Alta Direção',1.5],[6,'A','Revisão do planejamento (≤ 12 meses, com colaboradores)',1],
+ [7,'B','Instruções de trabalho e procedimentos',2],[8,'B','Processos, entradas e saídas',2],[9,'B','Procedimentos de atendimento aos usuários',1.5],
+ [10,'B','Monitoramento da espera (início em até 15 min)',4],[11,'B','Informações online (serviços, emolumentos, prazos, ouvidoria, centrais)',3],
+ [12,'B','Cumprimento e monitoramento de prazos dos serviços',3],[13,'B','Comunicação titular/substituto e colaboradores',2],[14,'B','Organograma com cargos e funções',0.5],
+ [15,'B','Avaliação da satisfação dos usuários',3],[16,'B','Gestão de reclamações (retorno em até 5 dias úteis)',4],[17,'B','Emolumentos e custas praticados e tabela afixada',2.5],
+ [18,'B','Recibos/notas com detalhamento de emolumentos e custas',2.5],[19,'B','Regularidade fiscal e com entidades de classe',3],[20,'B','Fornecedores, prestadores e subcontratados',2],
+ [21,'B','Não conformidades e ações corretivas',2],[22,'B','Certificação do sistema de gestão',3],
+ [23,'C','Código de conduta / ética',2.5],[24,'C','Contratação de colaboradores',2.5],[25,'C','Absenteísmo e horas extras',1],[26,'C','Educação continuada da equipe',4],
+ [27,'C','Avaliação da eficácia da aprendizagem',3],[28,'C','Avaliação de desempenho profissional',3],[29,'C','Pastas funcionais atualizadas',1],
+ [30,'C','Clima organizacional e satisfação dos colaboradores',3],[31,'C','Integração sociocultural da equipe',1],[32,'C','Política de motivação e valorização',0.5],
+ [33,'C','Benefícios extralegais (mínimo três)',0.5],[34,'C','Diversidade no ambiente de trabalho',1.5],
+ [35,'D','Plano de manutenção de infraestrutura',3],[36,'D','Conforto e bem-estar das partes interessadas',3],[37,'D','Acessibilidade',3],
+ [38,'E','Segurança e saúde ocupacional (PGR, PCMSO, incêndio)',2.5],[39,'E','Conscientização em saúde e segurança',2.5],
+ [40,'F','Boas práticas ambientais',1.5],[41,'F','Responsabilidade socioambiental (ODS)',1],[42,'F','Responsabilidade social',2],
+ [43,'G','Informatização e digitalização',3],[44,'G','Segurança da informação e backups',3],[45,'G','Escrituração e publicidade eletrônica',3],[46,'G','LGPD',3],
+ [47,'H','Inovação implantada nos últimos 12 meses',2],[48,'H','Avaliação da eficiência por indicadores',3],
+ [49,'I','Programa de compliance',2],[50,'I','Análise de risco de compliance e apuração',1.5],[51,'I','Programa de integridade',1.5],
+ [52,'I','Canais de denúncia com sigilo',2.5],[53,'I','Treinamento em compliance',2.5],[54,'I','PLD/FT: comunicações ao COAF',2.5],
+ [55,'I','Governança de TI (Prov. 213/2026) — sem pontos, resposta obrigatória',0],[56,'I','Monitoramento regulatório — sem pontos, resposta obrigatória',0],
+ [57,'J','Plano de continuidade do negócio',2.5],[58,'J','Nível mínimo de serviços em contingência',1.5],[59,'J','Análise de riscos de eventos disruptivos',1.5]
+];
+const PQ_TOTAL = 125;
+const PQS = {pend:['Pendente','mute'],C:['Conforme','ok'],PC:['Parc. conforme','warn'],NC:['Não conforme','bad']};
+
+const DOCS_RH = [['a','Ficha de registro'],['b','Contrato / aditivo LGPD'],['c','Diplomas e certificados'],['d','Documentos pessoais'],['e','Atestados médicos'],['f','ASOs']];
+
+const MST = {solicitada:['Solicitada','info'],elaboracao:['Em elaboração','warn'],revisao:['Em revisão','warn'],entregue:['Entregue','ok'],cancelada:['Cancelada','mute']};
+const MORD = ['solicitada','elaboracao','revisao','entregue'];
+const MTIPOS = ['Escritura pública de compra e venda','Escritura de doação','Escritura de inventário e partilha','Escritura de divórcio/separação','Escritura de união estável','Procuração pública','Ata notarial','Testamento público','Requerimento de retificação de área','Requerimento de registro/averbação','Requerimento de usucapião extrajudicial','Abertura de matrícula','Desmembramento/unificação','Cancelamento de protesto','Nota devolutiva / exigência','Certidão / despacho','Ofício / expediente','Outro'];
+
+const CHK = [
+ ['livroDiario','Livro Diário Auxiliar fechado (regime de caixa)','fechamento'],
+ ['livroAtos','Livro de Atos / Demonstrativo (resumido e detalhado)','fechamento'],
+ ['extratos','Extratos de todas as contas (corrente, poupança, aplicações, provisão, depósito prévio)','fechamento'],
+ ['certidaoSOF','Certidão SOF/SEI do IR retido, se houver','fechamento'],
+ ['depPrevio','Livro de Depósito Prévio conciliado com o extrato','fechamento'],
+ ['comprovantes','Cada despesa com NF/cupom no CNPJ e data no mês','despesas'],
+ ['autorizacoes','Decisões do TJPI anexadas onde exigidas','despesas'],
+ ['provisao','Provisão do mês depositada + planilha de cálculo','despesas'],
+ ['semMulta','Nenhuma multa ou juros por atraso','despesas'],
+ ['reciboInterino','Recibo do interino e transferência única','transmissao'],
+ ['pdfA4','PDFs em A4 anexados em cada lançamento','transmissao'],
+ ['guia','Guia do excedente gerada e paga','transmissao']
+];
+
+/* ===================== Utilidades ===================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl = n => (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const num = v => { if (typeof v === 'number') return v; v = String(v ?? '').trim().replace(/[R$\s]/g,''); if (v.includes(',')) v = v.replace(/\./g,'').replace(',','.'); const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+const fmtNum = n => (Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const iso = d => { const z = new Date(d.getTime() - d.getTimezoneOffset()*60000); return z.toISOString().slice(0,10); };
+const today = () => iso(new Date());
+const fdate = s => s ? s.slice(0,10).split('-').reverse().join('/') : '—';
+const parseD = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d||1); };
+const days = (a,b) => Math.round((parseD(b) - parseD(a)) / 86400000);
+const addMonths = (s,n) => { const d = parseD(s); d.setMonth(d.getMonth()+n); return iso(d); };
+const curMonth = () => today().slice(0,7);
+const prevMonth = (m=curMonth()) => addMonths(m+'-01',-1).slice(0,7);
+const nextMonth = m => addMonths(m+'-01',1).slice(0,7);
+const mlabel = m => { const [y,mm] = m.split('-'); return ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][+mm-1]+'/'+y; };
+const pct = (a,b) => b ? Math.round(a/b*100) : 0;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast.h); toast.h=setTimeout(()=>t.style.display='none',3200); }
+function store(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } }
+
+/* ===================== Estado ===================== */
+const COLS = ['serventias','membros','lancamentos','funcionarios','pqta','balancetes','minutas'];
+const S = {
+  uid:null, email:'', readOnly:false, offline:false, ready:false,
+  data:Object.fromEntries(COLS.map(c=>[c,[]])), config:{},
+  cur:store('serventia')||'', tab:'inicio', mes:curMonth(), comp:prevMonth(), pqf:'todos', mf:'abertas'
+};
+
+/* ===================== Dados (Supabase) ===================== */
+function fromRow(col, r){
+  if (col==='membros') return {id:r.user_id, papel:r.papel, serventiaId:r.serventia_id, rotulo:r.rotulo||'', email:r.email||''};
+  const o = {...(r.data||{}), id:r.id};
+  if (col!=='serventias') o.serventiaId = r.serventia_id;
+  return o;
+}
+function toRow(col, id, obj){
+  const d = {...obj}; delete d.id;
+  const row = {id, data:d, updated_at:new Date().toISOString()};
+  if (col!=='serventias'){ row.serventia_id = d.serventiaId; delete d.serventiaId; }
+  return row;
+}
+function applyLocal(col, obj, del){
+  const arr = S.data[col].filter(x=>x.id!==obj.id);
+  if (!del) arr.push(obj);
+  S.data[col] = arr; saveCache(); render();
+}
+function werr(error){
+  console.error(error);
+  if (!navigator.onLine) toast('Sem internet. A alteração não foi salva.');
+  else if (error && (error.code==='42501' || /row-level security|permission/i.test(error.message||''))) toast('Sem permissão para esta alteração.');
+  else toast('Não foi possível salvar: '+(error?.message||'erro desconhecido'));
+  throw error;
+}
+async function setDoc(col,id,obj){
+  if (col==='config'){ const {error} = await sb.from('config').upsert({id, data:obj}); if (error) werr(error); S.config = obj; saveCache(); render(); return; }
+  const {error} = await sb.from(col).upsert(toRow(col,id,obj)); if (error) werr(error);
+  applyLocal(col, {...obj, id});
+}
+async function addDoc(col,obj){ const id = crypto.randomUUID(); await setDoc(col,id,obj); return id; }
+async function delDoc(col,id){
+  const {error} = await sb.from(col).delete().eq(col==='membros'?'user_id':'id', id); if (error) werr(error);
+  applyLocal(col, {id}, true);
+}
+const clean = o => { const x = {...o}; delete x.id; return x; };
+
+async function fetchAll(col){
+  const out = []; let from = 0;
+  for(;;){ const {data, error} = await sb.from(col).select('*').range(from, from+999); if (error) throw error; out.push(...data); if (data.length < 1000) break; from += 1000; }
+  return out;
+}
+let cacheT;
+function saveCache(){ clearTimeout(cacheT); cacheT = setTimeout(()=>store('cache_'+S.uid, JSON.stringify({data:S.data, config:S.config, em:new Date().toISOString()})), 400); }
+
+async function boot(){
+  registerSW();
+  if (!sb) { $('#main').innerHTML = '<div class="card empty"><b>App não configurado.</b><br>Preencha SUPABASE_URL e SUPABASE_ANON_KEY no arquivo config.js (veja o README).</div>'; return; }
+  sb.auth.onAuthStateChange((ev, sess) => {
+    if (ev==='PASSWORD_RECOVERY') novaSenha();
+    if (ev==='SIGNED_OUT') { S.uid=null; S.ready=false; vLogin(); }
+    if (ev==='SIGNED_IN' && sess && sess.user.id!==S.uid) start(sess.user);
+  });
+  const {data:{session}} = await sb.auth.getSession();
+  if (session) start(session.user); else vLogin();
+}
+async function start(u){
+  S.uid = u.id; S.email = u.email||''; S.ready = false;
+  $('#logout').style.display = '';
+  $('#main').innerHTML = '<div class="empty">Carregando…</div>';
+  try {
+    const res = await Promise.all([...COLS.map(fetchAll), sb.from('config').select('*').eq('id','geral').maybeSingle()]);
+    COLS.forEach((c,i)=>S.data[c] = res[i].map(r=>fromRow(c,r)));
+    if (res[COLS.length].error) throw res[COLS.length].error;
+    S.config = res[COLS.length].data?.data || {};
+    S.offline = false; S.readOnly = false; saveCache();
+    subscribe();
+  } catch(e){
+    console.error(e);
+    let c = null; try { c = JSON.parse(store('cache_'+S.uid)||'null'); } catch(_){}
+    if (c) { S.data = {...S.data, ...c.data}; S.config = c.config||{}; S.offline = true; S.readOnly = true; S.cacheEm = c.em; }
+    else { $('#main').innerHTML = '<div class="card empty"><b>Não foi possível carregar os dados.</b><br>Verifique a conexão e tente de novo.<br><br><button class="btn pri" data-act="reload">Tentar de novo</button></div>'; return; }
+  }
+  S.ready = true; render();
+}
+let channel;
+function subscribe(){
+  if (channel) sb.removeChannel(channel);
+  channel = sb.channel('app');
+  [...COLS,'config'].forEach(col => channel.on('postgres_changes', {event:'*', schema:'public', table:col}, p => {
+    if (col==='config'){ if (p.new?.id==='geral') { S.config = p.new.data||{}; render(); } return; }
+    if (p.eventType==='DELETE'){ const k = col==='membros' ? p.old.user_id : p.old.id; S.data[col] = S.data[col].filter(x=>x.id!==k); }
+    else { const o = fromRow(col, p.new); S.data[col] = S.data[col].filter(x=>x.id!==o.id).concat(o); }
+    saveCache(); render();
+  }));
+  channel.subscribe();
+}
+window.addEventListener('online', ()=>{ if (S.offline && S.uid) start({id:S.uid, email:S.email}); });
+window.addEventListener('offline', ()=>{ toast('Sem internet: modo somente leitura.'); });
+
+function meuNome(){ const m = S.data.membros.find(x=>x.id===S.uid); return m?.rotulo || S.email || 'Usuário'; }
+const pname = (id, fallback) => { if (id===S.uid) return 'Você'; const m = S.data.membros.find(x=>x.id===id); return m?.rotulo || m?.email || fallback || 'Usuário'; };
+
+/* ===================== Login ===================== */
+function vLogin(){
+  $('#logout').style.display='none'; $('#gear').style.display='none'; $('#sel').style.display='none'; $('#nav').innerHTML='';
+  $('#main').innerHTML = `<div class="card" style="max-width:420px;margin:30px auto"><h2>Entrar</h2>
+  <form id="lf"><label class="f"><span>E-mail</span><input type="email" name="email" autocomplete="username" required></label>
+  <label class="f"><span>Senha</span><input type="password" name="senha" autocomplete="current-password" required></label>
+  <button class="btn pri" style="width:100%">Entrar</button></form>
+  <p style="text-align:center"><button class="btn sm" data-act="esqueci">Esqueci a senha</button></p>
+  <p class="small muted">O acesso é criado pela assessoria. Se ainda não tem login, peça para ser cadastrado.</p></div>`;
+  $('#lf').addEventListener('submit', async e => { e.preventDefault(); const f = new FormData(e.target); const b = e.target.querySelector('button'); b.disabled = true;
+    const {error} = await sb.auth.signInWithPassword({email:f.get('email').trim(), password:f.get('senha')}); b.disabled = false;
+    if (error) toast(/invalid/i.test(error.message)?'E-mail ou senha incorretos.':'Não foi possível entrar: '+error.message); });
+}
+function novaSenha(){
+  modal('Definir nova senha', `<form id="f"><label class="f"><span>Nova senha (mínimo 8 caracteres)</span><input type="password" name="senha" minlength="8" autocomplete="new-password" required></label></form>`, [['Salvar','pri','save']], async ()=>{
+    const x = fd(); if ((x.senha||'').length<8) { toast('Use pelo menos 8 caracteres'); return false; }
+    const {error} = await sb.auth.updateUser({password:x.senha}); if (error) { toast(error.message); return false; }
+    closeModal(); toast('Senha atualizada');
+  });
+}
+
+/* ===================== PWA ===================== */
+let installEvt = null;
+function registerSW(){ if ('serviceWorker' in navigator && location.protocol!=='file:') navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; render(); });
+window.addEventListener('appinstalled', () => { installEvt = null; render(); });
+
+/* ===================== Papéis ===================== */
+function role(){
+  const m = S.data.membros.find(x=>x.id===S.uid);
+  if (!m) return {tipo:'pendente'};
+  if (m.papel==='admin') return {tipo:'assessoria', admin:true};
+  if (m.papel==='assessoria') return {tipo:'assessoria'};
+  return {tipo:'cartorio', sid:m.serventiaId};
+}
+const isAss = () => role().tipo==='assessoria';
+const isAdmin = () => !!role().admin;
+function visServ(){ const r=role(); const all=[...S.data.serventias].sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')); if (r.tipo==='assessoria') return all; if (r.tipo==='cartorio') return all.filter(s=>s.id===r.sid); return []; }
+const serv = id => S.data.serventias.find(s=>s.id===id);
+const by = (col,sid) => S.data[col].filter(x=>x.serventiaId===sid);
+
+/* ===================== Cálculos ===================== */
+function somaCod(sid, mes){
+  const out = {}; by('lancamentos',sid).filter(l=>(l.data||'').startsWith(mes)).forEach(l=>{ out[l.codigo]=(out[l.codigo]||0)+num(l.valor); });
+  return out;
+}
+function bal(sid, comp){
+  const c = somaCod(sid, comp); const s = a => a.reduce((t,k)=>t+(c[k]||0),0);
+  const rec=s(G.rec), g21=s(G.g21), g22=s(G.g22), g23=s(G.g23), g24=s(G.g24), desp=g21+g22+g23+g24, liq=rec-desp;
+  const d = S.data.balancetes.find(b=>b.id===sid+'__'+comp) || {};
+  const rem = num(d.remuneracao); const exc = Math.max(0, liq - rem);
+  const disp = num(d.s61)+num(d.s62)+num(d.s63)+num(d.s64);
+  const due = nextMonth(comp)+'-15';
+  return {c,rec,g21,g22,g23,g24,desp,liq,rem,exc,disp,d,due};
+}
+function pqScore(sid){
+  const st = Object.fromEntries(by('pqta',sid).map(p=>[p.item,p]));
+  let pts=0, done=0, area={};
+  PQ.forEach(([n,a,,p])=>{ const s=st[n]?.status||'pend'; const v = s==='C'?p : s==='PC'?p/2 : 0; pts+=v; if(s!=='pend') done++; area[a]=area[a]||{max:0,pts:0,n:0,d:0}; area[a].max+=p; area[a].pts+=v; area[a].n++; if(s!=='pend') area[a].d++; });
+  return {pts, done, area, st};
+}
+function alertas(sid){
+  const A=[], t=today(), sv=serv(sid);
+  if (!sv) return A;
+  // Prestação de contas
+  if (sv.interino){
+    const comp = prevMonth(); const b = bal(sid, comp);
+    if (!b.d.transmitido){ const dl = days(t,b.due); A.push({n: dl<0?'bad':dl<=5?'bad':'warn', t:`Balancete ${mlabel(comp)} ${dl<0?'atrasado há '+(-dl)+' dia(s)':'vence em '+fdate(b.due)+' ('+dl+' dia(s))'}`, go:'contas'}); }
+    if (t.slice(5,7)==='01' && !b.d.certidoes) A.push({n:'info', t:'Janeiro: anexar certidões negativas do CPF do interino e do CNPJ (aba 2.1.2).', go:'contas'});
+  }
+  // Financeiro
+  const L = by('lancamentos',sid).filter(l=>(l.data||'')>=prevMonth()+'-01');
+  const sc = L.filter(l=>!l.comprovante).length; if (sc) A.push({n:'warn', t:`${sc} lançamento(s) recente(s) sem comprovante marcado`, go:'financeiro'});
+  const sa = L.filter(l=>AUT.has(l.codigo)&&!l.autorizacao).length; if (sa) A.push({n:'bad', t:`${sa} despesa(s) que exigem autorização prévia do TJPI sem decisão anexada`, go:'financeiro'});
+  // RH
+  by('funcionarios',sid).filter(f=>f.ativo!==false).forEach(f=>{
+    if (f.asoVenc){ const d=days(t,f.asoVenc); if (d<0) A.push({n:'bad',t:`ASO de ${f.nome} vencido em ${fdate(f.asoVenc)}`,go:'rh'}); else if (d<=30) A.push({n:'warn',t:`ASO de ${f.nome} vence em ${d} dia(s)`,go:'rh'}); }
+    if (f.feriasLimite){ const d=days(t,f.feriasLimite); if (d<=60) A.push({n:d<0?'bad':'warn',t:`Férias de ${f.nome}: conceder até ${fdate(f.feriasLimite)}`,go:'rh'}); }
+    if (f.admissao && days(f.admissao,t)>365 && (!f.ultimaAvaliacao || days(f.ultimaAvaliacao,t)>365)) A.push({n:'warn',t:`Avaliação de desempenho de ${f.nome} vencida (PQTA 28)`,go:'rh'});
+  });
+  // Minutas
+  by('minutas',sid).filter(m=>!['entregue','cancelada'].includes(m.status)&&m.prazo&&m.prazo<t).forEach(m=>A.push({n:'bad',t:`Minuta atrasada: ${m.tipo}`,go:'minutas'}));
+  // PQTA
+  const late = by('pqta',sid).filter(p=>p.prazo&&p.prazo<t&&p.status!=='C').length; if (late) A.push({n:'warn',t:`${late} item(ns) do PQTA com prazo vencido`,go:'pqta'});
+  return A;
+}
+
+/* ===================== Render ===================== */
+function render(){
+  if (!S.ready) return;
+  const r = role();
+  $('#gear').style.display = r.admin ? '' : 'none';
+  const vs = visServ();
+  if (r.tipo==='cartorio') S.cur = r.sid;
+  if (!vs.find(s=>s.id===S.cur) && !(S.cur==='__all' && r.tipo==='assessoria')) S.cur = vs.length>1 && r.tipo==='assessoria' ? '__all' : (vs[0]?.id||'');
+  const sel = $('#sel');
+  sel.innerHTML = (r.tipo==='assessoria' && vs.length>1 ? '<option value="__all">Todas as serventias</option>' : '') + vs.map(s=>`<option value="${esc(s.id)}">${esc(s.nome)}</option>`).join('');
+  sel.value = S.cur; sel.disabled = r.tipo!=='assessoria'; sel.style.display = vs.length ? '' : 'none';
+  $('#nav').innerHTML = r.tipo==='pendente' ? '' : TABS.map(([k,l])=>`<a href="#${k}" class="${S.tab===k?'on':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${l}</a>`).join('');
+  const m = $('#main');
+  const banner = (S.offline ? `<div class="alert info">Sem conexão: mostrando os dados salvos no aparelho${S.cacheEm?' em '+new Date(S.cacheEm).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):''}. Somente leitura até a internet voltar.</div>` : '') + (installEvt && S.tab==='inicio' ? '<div class="alert info" style="justify-content:space-between;align-items:center">Instale o app na tela inicial.<button class="btn sm pri" data-act="install">Instalar</button></div>' : '');
+  if (r.tipo==='pendente') { m.innerHTML = vPendente(); return; }
+  if (S.tab==='cadastros') { m.innerHTML = banner + (r.admin ? vCadastros() : ''); return; }
+  if (!vs.length) { m.innerHTML = banner + `<div class="card empty"><b>Nenhuma serventia cadastrada.</b><br><br>${r.admin?'<button class="btn pri" data-act="servForm">Cadastrar serventia</button>':'Aguarde a assessoria vincular sua serventia.'}</div>`; return; }
+  if (S.cur==='__all' && S.tab!=='inicio') { m.innerHTML = banner + '<div class="card empty">Escolha uma serventia no topo para abrir este módulo.</div>' + vGeral(); return; }
+  const V = {inicio:vInicio, financeiro:vFin, rh:vRH, pqta:vPQTA, contas:vContas, minutas:vMinutas}[S.tab] || vInicio;
+  m.innerHTML = banner + V(S.cur);
+}
+
+function vPendente(){
+  return `<div class="card"><h2>Acesso pendente</h2><p>Seu login (<b>${esc(S.email)}</b>) ainda não está vinculado a uma serventia. Peça à assessoria para liberar o acesso usando esse e-mail.</p>
+  <button class="btn" data-act="reload">Já fui liberado — atualizar</button></div>`;
+}
+
+/* ---------- Início ---------- */
+function vGeral(){
+  const rows = visServ().map(s=>{
+    const b = bal(s.id, curMonth()); const pq = pqScore(s.id);
+    const ma = by('minutas',s.id).filter(m=>!['entregue','cancelada'].includes(m.status)).length;
+    const bp = bal(s.id, prevMonth()); const bs = !s.interino ? '<span class="chip mute">n/a</span>' : bp.d.transmitido ? '<span class="chip ok">Enviado</span>' : '<span class="chip warn">Pendente</span>';
+    const al = alertas(s.id).filter(a=>a.n==='bad').length;
+    return `<tr data-act="pick" data-sid="${esc(s.id)}" style="cursor:pointer"><td><b>${esc(s.nome)}</b><div class="small muted">${esc(s.municipio||'')}</div></td><td class="num ${b.liq<0?'neg':''}">${brl(b.liq)}</td><td class="num">${ma}</td><td class="num">${fmtNum(pq.pts).replace(',00','')}</td><td>${bs}</td><td class="num">${al?'<span class="chip bad">'+al+'</span>':'—'}</td></tr>`;
+  }).join('');
+  return `<h2>Visão geral</h2><div class="card" style="overflow:auto"><table><tr><th>Serventia</th><th class="num">Resultado ${mlabel(curMonth())}</th><th class="num">Minutas abertas</th><th class="num">PQTA (pts)</th><th>Balancete ${mlabel(prevMonth())}</th><th class="num">Críticos</th></tr>${rows}</table></div>`;
+}
+function vInicio(sid){
+  if (sid==='__all') return vGeral();
+  const sv = serv(sid), b = bal(sid, curMonth()), pq = pqScore(sid);
+  const ma = by('minutas',sid).filter(m=>!['entregue','cancelada'].includes(m.status));
+  const fa = by('funcionarios',sid).filter(f=>f.ativo!==false);
+  const A = alertas(sid);
+  return `<h2>${esc(sv.nome)}</h2>
+  <div class="grid">
+    <div class="kpi"><div class="l">Resultado ${mlabel(curMonth())}</div><div class="v ${b.liq<0?'neg':''}">${brl(b.liq)}</div><div class="s">Receitas ${brl(b.rec)}</div></div>
+    <div class="kpi"><div class="l">Minutas abertas</div><div class="v">${ma.length}</div><div class="s">${ma.filter(m=>m.prazo&&m.prazo<today()).length} atrasada(s)</div></div>
+    <div class="kpi"><div class="l">PQTA estimado</div><div class="v">${fmtNum(pq.pts).replace(',00','')}<span class="small muted"> / ${PQ_TOTAL}</span></div><div class="s">${pq.done} de ${PQ.length} itens avaliados</div></div>
+    <div class="kpi"><div class="l">Colaboradores</div><div class="v">${fa.length}</div><div class="s">Folha ${brl(fa.reduce((t,f)=>t+num(f.salario),0))}</div></div>
+  </div>
+  <h3>Pendências</h3>
+  ${A.length ? A.map(a=>`<div class="alert ${a.n==='warn'?'':a.n}" data-act="go" data-tab="${a.go}" style="cursor:pointer">${esc(a.t)}</div>`).join('') : '<div class="alert ok">Nenhuma pendência no momento.</div>'}`;
+}
+
+/* ---------- Financeiro ---------- */
+function vFin(sid){
+  const L = by('lancamentos',sid).filter(l=>(l.data||'').startsWith(S.mes)).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+  const b = bal(sid, S.mes);
+  const items = L.map(l=>{ const r = (l.codigo||'').startsWith('1'); const inf = INFO.has(l.codigo);
+    return `<div class="it" data-act="lancForm" data-id="${esc(l.id)}"><div class="grow"><div class="t">${esc(l.descricao||CODN[l.codigo]||'')}</div>
+    <div class="small muted">${fdate(l.data)} · ${esc(l.codigo)} ${esc(CODN[l.codigo]||'')}</div>
+    <div class="row wrap" style="gap:6px;margin-top:4px">${l.comprovante?'':'<span class="chip warn">Sem comprovante</span>'}${AUT.has(l.codigo)&&!l.autorizacao?'<span class="chip bad">Falta autorização TJPI</span>':''}${inf?'<span class="chip mute">Informativo</span>':''}</div></div>
+    <div class="num ${inf?'muted':r?'pos':'neg'}"><b>${r?'':'−'}${brl(l.valor)}</b></div></div>`; }).join('');
+  return `<div class="row between"><h2>Financeiro</h2><input type="month" value="${S.mes}" data-ch="mes" style="width:auto"></div>
+  <div class="grid">
+    <div class="kpi"><div class="l">Receitas</div><div class="v pos">${brl(b.rec)}</div></div>
+    <div class="kpi"><div class="l">Despesas</div><div class="v neg">${brl(b.desp)}</div></div>
+    <div class="kpi"><div class="l">Resultado</div><div class="v ${b.liq<0?'neg':''}">${brl(b.liq)}</div><div class="s">Regime de caixa</div></div>
+  </div>
+  <div class="card list">${items || '<div class="empty">Nenhum lançamento neste mês.</div>'}</div>
+  ${S.readOnly?'':'<button class="btn pri fab" data-act="lancForm">+ Lançamento</button>'}`;
+}
+function lancForm(id){
+  const l = id ? S.data.lancamentos.find(x=>x.id===id) : {data:today(), codigo:'1.1'};
+  const opt = g => COD.filter(([c])=>c.startsWith(g)).map(([c,n])=>`<option value="${c}" ${l.codigo===c?'selected':''}>${c} — ${esc(n)}</option>`).join('');
+  modal(id?'Editar lançamento':'Novo lançamento', `<form id="f">
+    <label class="f"><span>Conta (plano COBJUD)</span><select name="codigo"><optgroup label="1. Receitas">${opt('1')}</optgroup><optgroup label="2.1 Pessoal">${opt('2.1')}</optgroup><optgroup label="2.2 Administrativas">${opt('2.2')}</optgroup><optgroup label="2.3 Investimentos">${opt('2.3')}</optgroup><optgroup label="2.4 Restituições">${opt('2.4')}</optgroup></select></label>
+    <div class="two"><label class="f"><span>Data do pagamento/recebimento</span><input type="date" name="data" value="${esc(l.data)}" required></label>
+    <label class="f"><span>Valor (R$)</span><input name="valor" inputmode="decimal" value="${l.valor!=null?fmtNum(l.valor):''}" placeholder="0,00" required></label></div>
+    <label class="f"><span>Descrição</span><input name="descricao" value="${esc(l.descricao||'')}" placeholder="Ex.: Fatura Equatorial ref. 10/2026"></label>
+    <label class="cb"><input type="checkbox" name="comprovante" ${l.comprovante?'checked':''}> Comprovante e NF/cupom no CNPJ da serventia anexados</label>
+    <label class="cb"><input type="checkbox" name="autorizacao" ${l.autorizacao?'checked':''}> Decisão do TJPI anexada (contador, advogado, assessoria de TI, investimentos, aumentos, rescisões)</label>
+  </form>`, [id&&!S.readOnly?['Excluir','bad','del']:null,['Cancelar','','close'],S.readOnly?null:['Salvar','pri','save']], async act=>{
+    if (act==='del'){ await delDoc('lancamentos',id); closeModal(); toast('Lançamento excluído'); return; }
+    const f = fd(); if (!f.data || !num(f.valor)) { toast('Informe data e valor'); return false; }
+    const o = {serventiaId:S.cur, codigo:f.codigo, data:f.data, valor:num(f.valor), descricao:f.descricao.trim(), comprovante:!!f.comprovante, autorizacao:!!f.autorizacao};
+    if (id) await setDoc('lancamentos',id,{...clean(l),...o}); else await addDoc('lancamentos',{...o,criadoEm:new Date().toISOString()});
+    S.mes = f.data.slice(0,7); closeModal(); toast('Lançamento salvo'); render();
+  });
+}
+
+/* ---------- RH ---------- */
+function vRH(sid){
+  const F = by('funcionarios',sid).sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+  const at = F.filter(f=>f.ativo!==false); const t = today();
+  const card = f => {
+    const docs = DOCS_RH.filter(([k])=>f.docs?.[k]).length; const b=[];
+    if (f.ativo===false) b.push('<span class="chip mute">Desligado</span>');
+    else {
+      if (f.asoVenc){ const d=days(t,f.asoVenc); b.push(d<0?'<span class="chip bad">ASO vencido</span>':d<=30?'<span class="chip warn">ASO em '+d+'d</span>':'<span class="chip ok">ASO ok</span>'); } else b.push('<span class="chip warn">ASO sem data</span>');
+      b.push(docs===6?'<span class="chip ok">Pasta completa</span>':'<span class="chip warn">Pasta '+docs+'/6</span>');
+      if (f.admissao && days(f.admissao,t)>365) b.push(!f.ultimaAvaliacao||days(f.ultimaAvaliacao,t)>365?'<span class="chip warn">Avaliação vencida</span>':'<span class="chip ok">Avaliado</span>');
+      if (f.feriasLimite){ const d=days(t,f.feriasLimite); if(d<=60) b.push('<span class="chip '+(d<0?'bad':'warn')+'">Férias até '+fdate(f.feriasLimite)+'</span>'); }
+      b.push('<span class="chip info">'+(num(f.horasTreino)||0)+'h treino/ano</span>');
+    }
+    return `<div class="it" data-act="funcForm" data-id="${esc(f.id)}"><div class="grow"><div class="t">${esc(f.nome)}</div><div class="small muted">${esc(f.cargo||'')} · admissão ${fdate(f.admissao)}</div><div class="row wrap" style="gap:6px;margin-top:5px">${b.join('')}</div></div><div class="num">${brl(f.salario)}</div></div>`;
+  };
+  return `<h2>Recursos humanos</h2>
+  <div class="grid">
+    <div class="kpi"><div class="l">Ativos</div><div class="v">${at.length}</div></div>
+    <div class="kpi"><div class="l">Folha bruta mensal</div><div class="v">${brl(at.reduce((s,f)=>s+num(f.salario),0))}</div></div>
+    <div class="kpi"><div class="l">Pastas completas</div><div class="v">${at.filter(f=>DOCS_RH.every(([k])=>f.docs?.[k])).length}/${at.length}</div><div class="s">PQTA item 29</div></div>
+  </div>
+  <div class="card list">${F.map(card).join('') || '<div class="empty">Nenhum colaborador cadastrado.</div>'}</div>
+  ${S.readOnly?'':'<button class="btn pri fab" data-act="funcForm">+ Colaborador</button>'}`;
+}
+function funcForm(id){
+  const f = id ? S.data.funcionarios.find(x=>x.id===id) : {ativo:true, docs:{}};
+  modal(id?f.nome:'Novo colaborador', `<form id="f">
+    <label class="f"><span>Nome</span><input name="nome" value="${esc(f.nome||'')}" required></label>
+    <div class="two"><label class="f"><span>Cargo / função</span><input name="cargo" value="${esc(f.cargo||'')}"></label>
+    <label class="f"><span>Salário bruto (R$)</span><input name="salario" inputmode="decimal" value="${f.salario!=null?fmtNum(f.salario):''}"></label></div>
+    <div class="two"><label class="f"><span>Admissão</span><input type="date" name="admissao" value="${esc(f.admissao||'')}"></label>
+    <label class="f"><span>Validade do ASO periódico</span><input type="date" name="asoVenc" value="${esc(f.asoVenc||'')}"></label></div>
+    <div class="two"><label class="f"><span>Conceder férias até</span><input type="date" name="feriasLimite" value="${esc(f.feriasLimite||'')}"></label>
+    <label class="f"><span>Última avaliação de desempenho</span><input type="date" name="ultimaAvaliacao" value="${esc(f.ultimaAvaliacao||'')}"></label></div>
+    <label class="f"><span>Horas de capacitação no ano (PQTA 26)</span><input name="horasTreino" inputmode="decimal" value="${esc(f.horasTreino||'')}"></label>
+    <h3>Pasta funcional (PQTA 29)</h3>
+    ${DOCS_RH.map(([k,n])=>`<label class="cb"><input type="checkbox" name="doc_${k}" ${f.docs?.[k]?'checked':''}> ${n}</label>`).join('')}
+    <label class="cb" style="margin-top:8px"><input type="checkbox" name="ativo" ${f.ativo!==false?'checked':''}> Ativo</label>
+    <label class="f"><span>Observações</span><textarea name="obs">${esc(f.obs||'')}</textarea></label>
+  </form>`, [id&&!S.readOnly?['Excluir','bad','del']:null,['Cancelar','','close'],S.readOnly?null:['Salvar','pri','save']], async act=>{
+    if (act==='del'){ await delDoc('funcionarios',id); closeModal(); toast('Colaborador excluído'); return; }
+    const x = fd(); if (!x.nome.trim()) { toast('Informe o nome'); return false; }
+    const o = {serventiaId:S.cur, nome:x.nome.trim(), cargo:x.cargo.trim(), salario:num(x.salario), admissao:x.admissao, asoVenc:x.asoVenc, feriasLimite:x.feriasLimite, ultimaAvaliacao:x.ultimaAvaliacao, horasTreino:num(x.horasTreino), ativo:!!x.ativo, obs:x.obs, docs:Object.fromEntries(DOCS_RH.map(([k])=>[k,!!x['doc_'+k]]))};
+    if (id) await setDoc('funcionarios',id,{...clean(f),...o}); else await addDoc('funcionarios',o);
+    closeModal(); toast('Colaborador salvo');
+  });
+}
+
+/* ---------- PQTA ---------- */
+function vPQTA(sid){
+  const sc = pqScore(sid), t = today();
+  const filt = ([n]) => { const p=sc.st[n]; const s=p?.status||'pend';
+    if (S.pqf==='pend') return s==='pend'; if (S.pqf==='nc') return s==='NC'||s==='PC'; if (S.pqf==='late') return p?.prazo&&p.prazo<t&&s!=='C'; return true; };
+  let html='';
+  Object.keys(AREAS).forEach(a=>{
+    const its = PQ.filter(i=>i[1]===a).filter(filt); if (!its.length) return;
+    const ar = sc.area[a];
+    html += `<div class="areah"><b>${a}. ${AREAS[a]}</b><span class="small muted">${fmtNum(ar.pts).replace(',00','')} / ${fmtNum(ar.max).replace(',00','')} pts</span></div><div class="bar" style="margin-bottom:6px"><i style="width:${pct(ar.pts,ar.max)}%"></i></div><div class="card list" style="padding:4px 14px">` +
+    its.map(([n,,tt,p])=>{ const it=sc.st[n]||{}; const s=it.status||'pend'; const late=it.prazo&&it.prazo<t&&s!=='C';
+      return `<div class="it" data-act="pqForm" data-n="${n}"><div class="grow"><div class="t">${n}. ${esc(tt)}</div><div class="small muted">${p} pt${p===1?'':'s'}${it.responsavel?' · '+esc(it.responsavel):''}${it.prazo?' · prazo '+fdate(it.prazo):''}</div></div><div class="row" style="gap:4px;flex-direction:column;align-items:flex-end"><span class="chip ${PQS[s][1]}">${PQS[s][0]}</span>${late?'<span class="chip bad">Atrasado</span>':''}</div></div>`; }).join('') + '</div>';
+  });
+  return `<h2>PQTA 2026</h2>
+  <div class="grid">
+    <div class="kpi"><div class="l">Pontuação estimada</div><div class="v">${fmtNum(sc.pts).replace(',00','')}<span class="small muted"> / ${PQ_TOTAL}</span></div><div class="s">Conforme = 100%, parcial = 50% (estimativa)</div></div>
+    <div class="kpi"><div class="l">Itens avaliados</div><div class="v">${sc.done}/${PQ.length}</div><div class="bar" style="margin-top:8px"><i style="width:${pct(sc.done,PQ.length)}%"></i></div></div>
+  </div>
+  <div class="chips">${[['todos','Todos'],['pend','Pendentes'],['nc','NC / parcial'],['late','Atrasados']].map(([k,l])=>`<button class="${S.pqf===k?'on':''}" data-act="pqf" data-v="${k}">${l}</button>`).join('')}</div>
+  ${html || '<div class="card empty">Nenhum item neste filtro.</div>'}`;
+}
+function pqForm(n){
+  n=+n; const [,a,tt,p] = PQ.find(i=>i[0]===n); const id = S.cur+'__'+n; const it = S.data.pqta.find(x=>x.id===id) || {};
+  modal(`Item ${n}`, `<p style="margin-top:0"><b>${esc(tt)}</b><br><span class="small muted">${AREAS[a]} · ${p} ponto(s) · Lista de verificação PQTA 2026</span></p><form id="f">
+    <label class="f"><span>Situação</span><select name="status">${Object.entries(PQS).map(([k,[l]])=>`<option value="${k}" ${(it.status||'pend')===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    <div class="two"><label class="f"><span>Responsável</span><input name="responsavel" value="${esc(it.responsavel||'')}"></label>
+    <label class="f"><span>Prazo</span><input type="date" name="prazo" value="${esc(it.prazo||'')}"></label></div>
+    <label class="f"><span>Evidências (documentos, links, onde estão)</span><textarea name="evidencia">${esc(it.evidencia||'')}</textarea></label>
+    <label class="f"><span>Plano de ação / observações</span><textarea name="obs">${esc(it.obs||'')}</textarea></label>
+  </form>`, [['Cancelar','','close'],S.readOnly?null:['Salvar','pri','save']], async ()=>{
+    const x = fd(); await setDoc('pqta', id, {serventiaId:S.cur, item:n, status:x.status, responsavel:x.responsavel.trim(), prazo:x.prazo, evidencia:x.evidencia, obs:x.obs, atualizadoEm:new Date().toISOString()});
+    closeModal(); toast('Item atualizado');
+  });
+}
+
+/* ---------- Prestação de contas ---------- */
+function vContas(sid){
+  const sv = serv(sid), b = bal(sid, S.comp), d = b.d, teto = num(S.config.tetoInterino), jan = S.comp.slice(5)==='01';
+  const line = (k,cls='') => `<tr class="${cls}"><td class="code">${k}</td><td>${esc(CODN[k])}</td><td class="num">${brl(b.c[k]||0)}</td></tr>`;
+  const sub = (k,l,v) => `<tr class="sub"><td class="code">${k}</td><td>${l}</td><td class="num">${brl(v)}</td></tr>`;
+  const dl = days(today(), b.due);
+  const ro = S.readOnly ? 'disabled' : '';
+  const inp = (k,l) => `<label class="f"><span>${l}</span><input data-bal="${k}" inputmode="decimal" value="${d[k]!=null?fmtNum(d[k]):''}" placeholder="0,00" ${ro}></label>`;
+  const groups = {fechamento:'Até o dia 5 — fechamento',despesas:'Até o dia 10 — despesas',transmissao:'Até o dia 15 — transmissão'};
+  return `<div class="row between"><h2>Prestação de contas</h2><input type="month" value="${S.comp}" data-ch="comp" style="width:auto"></div>
+  ${sv.interino ? '' : '<div class="alert info">Esta serventia não está marcada como vaga sob interinidade. O balancete COBJUD é obrigatório só para interinos; aqui ele serve como demonstrativo gerencial.</div>'}
+  <div class="grid">
+    <div class="kpi"><div class="l">Receita líquida</div><div class="v ${b.liq<0?'neg':''}">${brl(b.liq)}</div></div>
+    <div class="kpi"><div class="l">Excedente a recolher</div><div class="v">${brl(b.exc)}</div><div class="s">FERMOJUPI</div></div>
+    <div class="kpi"><div class="l">Prazo COBJUD</div><div class="v" style="font-size:17px">${fdate(b.due)}</div><div class="s">${d.transmitido?'<span class="chip ok">Transmitido</span>':dl<0?'<span class="chip bad">Atrasado '+(-dl)+'d</span>':'<span class="chip warn">'+dl+' dia(s)</span>'}</div></div>
+  </div>
+  <div class="card"><table style="table-layout:fixed"><colgroup><col style="width:52px"><col><col style="width:112px"></colgroup>
+    <tr><th>Item</th><th>Balancete ${mlabel(S.comp)} (regime de caixa)</th><th class="num">Valor</th></tr>
+    ${['1.1','1.2','1.3'].map(k=>line(k)).join('')}${line('1.3.1','inf')}${['1.4','1.5'].map(k=>line(k)).join('')}
+    <tr class="tot"><td class="code">1</td><td>Total de receitas</td><td class="num">${brl(b.rec)}</td></tr>
+    ${sub('2.1','Obrigações trabalhistas/tributárias',b.g21)}${['2.1.1','2.1.2','2.1.3'].map(k=>line(k)).join('')}${line('2.1.3.1','inf')}${['2.1.4','2.1.5'].map(k=>line(k)).join('')}
+    ${sub('2.2','Despesas administrativas/operacionais',b.g22)}${G.g22.map(k=>line(k)).join('')}
+    ${sub('2.3','Investimentos',b.g23)}${G.g23.map(k=>line(k)).join('')}
+    ${sub('2.4','Restituições',b.g24)}${line('2.4.1')}
+    <tr class="tot"><td class="code">2</td><td>Total de despesas</td><td class="num">${brl(b.desp)}</td></tr>
+    <tr class="tot"><td class="code">3</td><td>Receita líquida apurada</td><td class="num ${b.liq<0?'neg':''}">${brl(b.liq)}</td></tr>
+    <tr><td class="code">4</td><td>Remuneração bruta do interino</td><td class="num">${brl(b.rem)}</td></tr>
+    <tr class="tot"><td class="code">5</td><td>Excedente ao teto (guia FERMOJUPI)</td><td class="num">${brl(b.exc)}</td></tr>
+    <tr><td class="code">6</td><td>Disponibilidades (6.1 a 6.4)</td><td class="num">${brl(b.disp)}</td></tr>
+    <tr><td class="code">7</td><td>Saldo do Livro de Depósito Prévio</td><td class="num">${brl(d.s7)}</td></tr>
+  </table><p class="small muted">As linhas 1 e 2 somam os lançamentos do Financeiro neste mês. Os itens 1.3.1 e 2.1.3.1 são informativos e não entram no cálculo.</p></div>
+  <h3>Remuneração e saldos</h3>
+  <div class="card">
+    ${inp('remuneracao','4. Remuneração bruta do interino (R$)')}
+    ${teto ? (b.rem>teto ? `<div class="alert bad">Acima do teto cadastrado (${brl(teto)}). Se o interino acumula serventias, o teto vale para a soma das remunerações.</div>` : `<p class="small muted">Teto cadastrado: ${brl(teto)} (90,25% do subsídio de Ministro do STF). Se o interino acumula serventias, o teto vale para a soma.</p>`) : '<p class="small muted">Cadastre o valor do teto em Cadastros para conferir a remuneração.</p>'}
+    ${b.rem>b.liq && b.rem>0 ? '<div class="alert">A remuneração é maior que a receita líquida do mês.</div>' : ''}
+    <div class="two">${inp('s61','6.1 Saldo em espécie')}${inp('s62','6.2 Contas correntes')}${inp('s63','6.3 Poupança')}${inp('s64','6.4 Aplicações')}</div>
+    ${inp('s7','7. Saldo do Livro de Depósito Prévio')}
+    ${S.readOnly?'':'<button class="btn pri" data-act="saveBal">Salvar valores</button>'}
+  </div>
+  <h3>Checklist do mês</h3>
+  <div class="card">
+    ${Object.entries(groups).map(([g,l])=>`<div class="small muted" style="font-weight:650;margin:8px 0 2px">${l}</div>`+CHK.filter(c=>c[2]===g).map(([k,t])=>`<label class="cb"><input type="checkbox" data-chk="${k}" ${d.check?.[k]?'checked':''} ${ro}> ${esc(t)}</label>`).join('')).join('')}
+    ${jan?`<label class="cb"><input type="checkbox" data-chk="certidoes" ${d.check?.certidoes?'checked':''} ${ro}> <b>Janeiro:</b> certidões negativas do CPF do interino e do CNPJ na aba 2.1.2</label>`:''}
+    <div class="row wrap" style="margin-top:12px">${S.readOnly?'':(d.transmitido?`<span class="chip ok">Transmitido em ${fdate(d.transmitidoEm)}</span><button class="btn sm" data-act="transm" data-v="0">Desfazer</button>`:'<button class="btn pri" data-act="transm" data-v="1">Marcar como transmitido no COBJUD</button>')}</div>
+  </div>`;
+}
+async function balSave(patch){
+  const id = S.cur+'__'+S.comp; const cur = S.data.balancetes.find(b=>b.id===id) || {serventiaId:S.cur, competencia:S.comp};
+  await setDoc('balancetes', id, {...clean(cur), ...patch, serventiaId:S.cur, competencia:S.comp});
+}
+
+/* ---------- Minutas ---------- */
+function vMinutas(sid){
+  const t = today();
+  let M = by('minutas',sid).sort((a,b)=>(b.criadoEm||'').localeCompare(a.criadoEm||''));
+  const f = S.mf;
+  if (f==='abertas') M = M.filter(m=>!['entregue','cancelada'].includes(m.status)); else if (f!=='todas') M = M.filter(m=>m.status===f);
+  const cnt = s => by('minutas',sid).filter(m=>m.status===s).length;
+  return `<h2>Minutas de atos</h2>
+  <div class="chips">${[['abertas','Abertas'],['solicitada','Solicitadas ('+cnt('solicitada')+')'],['elaboracao','Em elaboração ('+cnt('elaboracao')+')'],['revisao','Em revisão ('+cnt('revisao')+')'],['entregue','Entregues'],['todas','Todas']].map(([k,l])=>`<button class="${f===k?'on':''}" data-act="mf" data-v="${k}">${l}</button>`).join('')}</div>
+  <div class="card list">${M.map(m=>{ const late = m.prazo && m.prazo<t && !['entregue','cancelada'].includes(m.status); const st=MST[m.status]||MST.solicitada;
+    return `<div class="it" data-act="minView" data-id="${esc(m.id)}"><div class="grow"><div class="t">${esc(m.tipo)}</div><div class="small muted">${esc(m.partes||'').slice(0,90)}</div><div class="small muted">Pedido em ${fdate(m.criadoEm)} por ${esc(pname(m.solicitante, m.solicitanteNome))}${m.prazo?' · prazo '+fdate(m.prazo):''}</div></div>
+    <div class="row" style="gap:4px;flex-direction:column;align-items:flex-end"><span class="chip ${st[1]}">${st[0]}</span>${m.prioridade==='urgente'?'<span class="chip bad">Urgente</span>':''}${late?'<span class="chip bad">Atrasada</span>':''}</div></div>`; }).join('') || '<div class="empty">Nenhuma minuta neste filtro.</div>'}</div>
+  ${S.readOnly?'':'<button class="btn pri fab" data-act="minForm">+ Solicitar minuta</button>'}`;
+}
+function minForm(id){
+  const m = id ? S.data.minutas.find(x=>x.id===id) : {prioridade:'normal'};
+  modal(id?'Editar solicitação':'Solicitar minuta', `<form id="f">
+    <label class="f"><span>Tipo de ato</span><select name="tipo">${MTIPOS.map(t=>`<option ${m.tipo===t?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
+    <label class="f"><span>Partes e qualificação resumida</span><textarea name="partes" placeholder="Ex.: Vendedor: João da Silva, CPF …; Comprador: …" required>${esc(m.partes||'')}</textarea></label>
+    <label class="f"><span>Objeto (imóvel, matrícula, título, valor)</span><textarea name="objeto" placeholder="Ex.: Imóvel rural Fazenda X, matrícula 1.234, área 50 ha, valor R$ …">${esc(m.objeto||'')}</textarea></label>
+    <label class="f"><span>Detalhes e cláusulas específicas</span><textarea name="detalhes">${esc(m.detalhes||'')}</textarea></label>
+    <div class="two"><label class="f"><span>Prioridade</span><select name="prioridade"><option value="normal" ${m.prioridade!=='urgente'?'selected':''}>Normal</option><option value="urgente" ${m.prioridade==='urgente'?'selected':''}>Urgente</option></select></label>
+    <label class="f"><span>Prazo desejado</span><input type="date" name="prazo" value="${esc(m.prazo||'')}"></label></div>
+    <p class="small muted">Não envie documentos completos por aqui. Informe só os dados necessários para a minuta (LGPD).</p>
+  </form>`, [['Cancelar','','close'],['Salvar','pri','save']], async ()=>{
+    const x = fd(); if (!x.partes.trim()) { toast('Informe as partes'); return false; }
+    const o = {tipo:x.tipo, partes:x.partes.trim(), objeto:x.objeto.trim(), detalhes:x.detalhes.trim(), prioridade:x.prioridade, prazo:x.prazo};
+    if (id) await setDoc('minutas',id,{...clean(m),...o});
+    else await addDoc('minutas',{...o, serventiaId:S.cur, status:'solicitada', solicitante:S.uid||'', solicitanteNome:meuNome(), criadoEm:new Date().toISOString(), texto:'', historico:[{em:new Date().toISOString(), uid:S.uid||'', nome:meuNome(), msg:'Solicitação criada'}]});
+    closeModal(); toast(id?'Solicitação atualizada':'Minuta solicitada');
+  });
+}
+function minView(id){
+  const m = S.data.minutas.find(x=>x.id===id); if (!m) return;
+  const ass = isAss() && !S.readOnly, st = MST[m.status]||MST.solicitada, idx = MORD.indexOf(m.status);
+  const canEdit = !S.readOnly && (ass || (m.status==='solicitada' && m.solicitante===S.uid));
+  modal(m.tipo, `
+    <div class="row wrap" style="gap:6px"><span class="chip ${st[1]}">${st[0]}</span>${m.prioridade==='urgente'?'<span class="chip bad">Urgente</span>':''}${m.prazo?'<span class="chip mute">Prazo '+fdate(m.prazo)+'</span>':''}</div>
+    <div class="steps">${MORD.map((s,i)=>`<i class="${i<=idx?'on':''}"></i>`).join('')}</div>
+    <p class="small muted" style="margin:0 0 10px">${esc(serv(m.serventiaId)?.nome||'')} · pedido por ${esc(pname(m.solicitante, m.solicitanteNome))} em ${fdate(m.criadoEm)}</p>
+    <div class="card" style="background:var(--bg)"><div class="small muted">Partes</div><div style="white-space:pre-wrap">${esc(m.partes)}</div>
+    ${m.objeto?`<div class="small muted" style="margin-top:8px">Objeto</div><div style="white-space:pre-wrap">${esc(m.objeto)}</div>`:''}
+    ${m.detalhes?`<div class="small muted" style="margin-top:8px">Detalhes</div><div style="white-space:pre-wrap">${esc(m.detalhes)}</div>`:''}</div>
+    ${ass?`<label class="f"><span>Etapa</span><select id="mst">${Object.entries(MST).map(([k,[l]])=>`<option value="${k}" ${m.status===k?'selected':''}>${l}</option>`).join('')}</select></label>`:''}
+    <h3>Texto da minuta</h3>
+    ${ass ? `<textarea id="mtx" style="min-height:260px" class="minuta" placeholder="Redija ou cole a minuta aqui.">${esc(m.texto||'')}</textarea>
+      <div class="row wrap" style="margin:8px 0">${CFG.IA_HABILITADA?'<button class="btn" data-act="minIA" data-id="'+esc(id)+'" id="iabtn">Gerar rascunho com IA</button>':''}<button class="btn" data-act="copyTx">Copiar texto</button></div>
+      <p class="small muted" id="iast">O rascunho gerado é ponto de partida: confira qualificação, dados registrais, tributos e normas antes de entregar.</p>`
+    : (m.texto ? `<div class="card minuta">${esc(m.texto)}</div><button class="btn" data-act="copy" data-v="${esc(m.texto)}">Copiar minuta</button>` : '<p class="muted">A minuta ainda não foi disponibilizada.</p>')}
+    <h3>Histórico</h3>
+    ${(m.historico||[]).slice().reverse().map(h=>`<div class="hist"><b>${esc(pname(h.uid, h.nome))}</b> <span class="muted">${new Date(h.em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</span><br>${esc(h.msg)}</div>`).join('')}
+    ${S.readOnly?'':'<div class="row" style="margin-top:8px"><input id="mcm" placeholder="Escrever comentário…"><button class="btn sm" data-act="minCom" data-id="'+esc(id)+'">Enviar</button></div>'}
+  `, [canEdit?['Editar pedido','','edit']:null, (!ass&&m.status==='solicitada'&&m.solicitante===S.uid&&!S.readOnly)?['Cancelar pedido','bad','cancel']:null, ['Fechar','','close'], ass?['Salvar','pri','save']:null], async act=>{
+    if (act==='edit'){ closeModal(); minForm(id); return; }
+    if (act==='cancel'){ await minUpd(id,{status:'cancelada'},'Pedido cancelado pelo cartório'); closeModal(); return; }
+    const ns = $('#mst').value, tx = $('#mtx').value; const cur = S.data.minutas.find(x=>x.id===id);
+    const msgs=[]; if (ns!==cur.status) msgs.push('Etapa: '+MST[ns][0]); if (tx!==(cur.texto||'')) msgs.push('Texto da minuta atualizado');
+    if (!msgs.length) { closeModal(); return; }
+    const patch = {status:ns, texto:tx}; if (ns==='entregue' && cur.status!=='entregue') patch.entregueEm = new Date().toISOString();
+    await minUpd(id, patch, msgs.join(' · ')); closeModal(); toast('Minuta salva');
+  }, true);
+}
+async function minUpd(id, patch, msg){
+  const cur = S.data.minutas.find(x=>x.id===id); const h = (cur.historico||[]).concat(msg?[{em:new Date().toISOString(), uid:S.uid||'', nome:meuNome(), msg}]:[]).slice(-100);
+  await setDoc('minutas', id, {...clean(cur), ...patch, historico:h});
+}
+async function minIA(id){
+  const ta = $('#mtx'), bt = $('#iabtn'), stEl = $('#iast');
+  if (ta.value.trim() && !ta.dataset.ok){ ta.dataset.ok='1'; stEl.textContent='Já existe texto. Toque de novo para substituí-lo pelo rascunho.'; return; }
+  bt.disabled = true; stEl.textContent = 'Gerando rascunho… pode levar até um minuto.';
+  try {
+    const {data, error} = await sb.functions.invoke('gerar-minuta', {body:{minutaId:id}});
+    if (error) throw error;
+    ta.value = data.text || ''; stEl.textContent = (data.truncated?'O texto foi cortado por tamanho. ':'')+'Rascunho gerado. Revise e toque em Salvar.';
+  } catch(e){ console.error(e); stEl.textContent = 'Não foi possível gerar o rascunho. Verifique se a função gerar-minuta está publicada (README).'; }
+  finally { bt.disabled = false; delete ta.dataset.ok; }
+}
+
+/* ---------- Cadastros ---------- */
+function vCadastros(){
+  const SV = [...S.data.serventias].sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+  const MB = S.data.membros;
+  return `<h2>Cadastros</h2>
+  <h3>Serventias</h3>
+  <div class="card list">${SV.map(s=>`<div class="it" data-act="servForm" data-id="${esc(s.id)}"><div class="grow"><div class="t">${esc(s.nome)}</div><div class="small muted">${esc(s.municipio||'')} · ${esc(s.especialidade||'')}${s.cnpj?' · CNPJ '+esc(s.cnpj):''}</div></div>${s.interino?'<span class="chip info">Interino</span>':''}</div>`).join('') || '<div class="empty">Nenhuma serventia.</div>'}
+  <div style="padding-top:10px"><button class="btn pri" data-act="servForm">+ Serventia</button></div></div>
+  <h3>Usuários com acesso</h3>
+  <div class="card">
+    <p class="small muted" style="margin-top:0">1) Crie o login da pessoa no painel do Supabase (Authentication → Users → Add user). 2) Vincule o e-mail aqui a uma serventia (vê só a sua) ou à assessoria (vê todas). O banco aplica essa separação.</p>
+    <div class="list">${MB.map(m=>`<div class="it" data-act="membForm" data-id="${esc(m.id)}"><div class="grow"><div class="t">${esc(m.rotulo||m.email||'Usuário')}</div><div class="small muted">${esc(m.email)} · ${m.papel==='admin'?'Administrador':m.papel==='assessoria'?'Assessoria — todas as serventias':esc(serv(m.serventiaId)?.nome||'Serventia removida')}</div></div></div>`).join('') || '<div class="empty">Nenhum usuário vinculado.</div>'}</div>
+    <div style="padding-top:10px"><button class="btn pri" data-act="membForm">+ Vincular usuário</button></div>
+  </div>
+  <h3>Parâmetros</h3>
+  <div class="card"><label class="f"><span>Teto da remuneração do interino (R$) — 90,25% do subsídio de Ministro do STF vigente</span><input id="teto" inputmode="decimal" value="${S.config.tetoInterino?fmtNum(S.config.tetoInterino):''}" placeholder="Informe o valor vigente"></label>
+  <button class="btn pri" data-act="saveTeto">Salvar</button></div>
+  <p class="small muted">Conectado como ${esc(S.email)}.</p>`;
+}
+function servForm(id){
+  const s = id ? serv(id) : {};
+  modal(id?'Editar serventia':'Nova serventia', `<form id="f">
+    <label class="f"><span>Nome</span><input name="nome" value="${esc(s.nome||'')}" placeholder="Ex.: Cartório Único de São João da Serra" required></label>
+    <div class="two"><label class="f"><span>Município</span><input name="municipio" value="${esc(s.municipio||'')}"></label>
+    <label class="f"><span>CNPJ</span><input name="cnpj" value="${esc(s.cnpj||'')}"></label></div>
+    <label class="f"><span>Especialidades</span><input name="especialidade" value="${esc(s.especialidade||'')}" placeholder="Ex.: Notas, Registro de Imóveis, Protesto"></label>
+    <label class="f"><span>Responsável</span><input name="responsavel" value="${esc(s.responsavel||'')}"></label>
+    <label class="cb"><input type="checkbox" name="interino" ${s.interino?'checked':''}> Serventia vaga sob interinidade (presta contas no COBJUD)</label>
+  </form>`, [id?['Excluir','bad','del']:null,['Cancelar','','close'],['Salvar','pri','save']], async act=>{
+    if (act==='del'){ if (!confirmDel.armed){ confirmDel.armed=true; toast('Toque em Excluir de novo para confirmar. ATENÇÃO: todos os dados desta serventia serão apagados.'); return false; } confirmDel.armed=false; await delDoc('serventias',id); closeModal(); return; }
+    const x = fd(); if (!x.nome.trim()) { toast('Informe o nome'); return false; }
+    const o = {nome:x.nome.trim(), municipio:x.municipio.trim(), cnpj:x.cnpj.trim(), especialidade:x.especialidade.trim(), responsavel:x.responsavel.trim(), interino:!!x.interino};
+    if (id) await setDoc('serventias',id,{...clean(s),...o}); else { const nid = await addDoc('serventias',o); S.cur = nid; store('serventia',nid); }
+    closeModal(); toast('Serventia salva');
+  });
+}
+const confirmDel = {armed:false};
+function membForm(id){
+  const m = id ? S.data.membros.find(x=>x.id===id) : {papel:'cartorio'};
+  const sv = [...S.data.serventias].sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+  modal(id?'Editar acesso':'Vincular usuário', `<form id="f">
+    <label class="f"><span>E-mail do login</span><input type="email" name="email" value="${esc(m.email||'')}" ${id?'readonly':''} placeholder="O mesmo cadastrado no Supabase" required></label>
+    <label class="f"><span>Nome para exibição</span><input name="rotulo" value="${esc(m.rotulo||'')}" placeholder="Ex.: Maria – escrevente"></label>
+    <label class="f"><span>Papel</span><select name="papel"><option value="cartorio" ${m.papel==='cartorio'?'selected':''}>Cartório (vê só a sua serventia)</option><option value="assessoria" ${m.papel==='assessoria'?'selected':''}>Assessoria (vê todas)</option><option value="admin" ${m.papel==='admin'?'selected':''}>Administrador (tudo + cadastros)</option></select></label>
+    <label class="f"><span>Serventia (para papel Cartório)</span><select name="serventiaId">${sv.map(s=>`<option value="${esc(s.id)}" ${m.serventiaId===s.id?'selected':''}>${esc(s.nome)}</option>`).join('')}</select></label>
+  </form>`, [id&&id!==S.uid?['Remover acesso','bad','del']:null,['Cancelar','','close'],['Salvar','pri','save']], async act=>{
+    if (act==='del'){ await delDoc('membros',id); closeModal(); toast('Acesso removido'); return; }
+    const x = fd(); if (!x.email.trim()) { toast('Informe o e-mail'); return false; }
+    if (x.papel==='cartorio' && !x.serventiaId) { toast('Cadastre uma serventia primeiro'); return false; }
+    if (id===S.uid && x.papel!=='admin') { toast('Você não pode tirar seu próprio acesso de administrador'); return false; }
+    const {data, error} = await sb.rpc('vincular_membro', {p_email:x.email.trim().toLowerCase(), p_papel:x.papel, p_serventia:x.papel==='cartorio'?x.serventiaId:null, p_rotulo:x.rotulo.trim()});
+    if (error) { toast(/não encontrado|not found/i.test(error.message)?'Nenhum login com esse e-mail. Crie o usuário no Supabase antes.':'Erro: '+error.message); return false; }
+    if (data) applyLocal('membros', fromRow('membros', data));
+    closeModal(); toast('Acesso salvo');
+  });
+}
+
+/* ===================== Modal ===================== */
+let mHandler = null;
+function modal(title, body, buttons, handler){
+  mHandler = handler;
+  $('#mbox').innerHTML = `<div class="hd"><h2>${esc(title)}</h2><button class="iconbtn" data-act="close" aria-label="Fechar" style="color:var(--muted)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>${body}<div class="ft">${buttons.filter(Boolean).map(([l,c,a])=>`<button class="btn ${c}" data-mact="${a}">${l}</button>`).join('')}</div>`;
+  $('#modal').classList.add('open'); confirmDel.armed=false;
+  const f = $('#mbox form'); if (f) f.addEventListener('submit', e=>{ e.preventDefault(); runM('save'); });
+}
+function closeModal(){ $('#modal').classList.remove('open'); $('#mbox').innerHTML=''; mHandler=null; }
+async function runM(a){
+  if (a==='close') { closeModal(); return; }
+  if (!mHandler) return;
+  const btns = [...document.querySelectorAll('#mbox [data-mact]')]; btns.forEach(b=>b.disabled=true);
+  try { await mHandler(a); } catch(e){} finally { btns.forEach(b=>b.disabled=false); }
+}
+const fd = () => { const f=$('#f'); const o={}; new FormData(f).forEach((v,k)=>o[k]=v); f.querySelectorAll('input[type=checkbox]').forEach(c=>o[c.name]=c.checked); return o; };
+
+/* ===================== Eventos ===================== */
+const ACT = {
+  go: d => { location.hash = d.tab; },
+  pick: d => { S.cur = d.sid; store('serventia',d.sid); render(); },
+  lancForm: d => lancForm(d.id), funcForm: d => funcForm(d.id), pqForm: d => pqForm(d.n),
+  minForm: d => minForm(d.id), minView: d => minView(d.id), servForm: d => servForm(d.id), membForm: d => membForm(d.id),
+  pqf: d => { S.pqf = d.v; render(); }, mf: d => { S.mf = d.v; render(); },
+  close: () => closeModal(),
+  copy: async d => { try { await navigator.clipboard.writeText(d.v); toast('Copiado'); } catch(e){ toast('Não foi possível copiar'); } },
+  copyTx: async () => { try { await navigator.clipboard.writeText($('#mtx').value); toast('Copiado'); } catch(e){ toast('Não foi possível copiar'); } },
+  logout: async () => { await sb.auth.signOut(); },
+  reload: () => location.reload(),
+  install: async () => { if (!installEvt) return; installEvt.prompt(); await installEvt.userChoice.catch(()=>{}); installEvt = null; render(); },
+  esqueci: async () => { const e = $('#lf [name=email]').value.trim(); if (!e) { toast('Digite seu e-mail primeiro'); return; } const {error} = await sb.auth.resetPasswordForEmail(e, {redirectTo: location.origin+location.pathname}); toast(error?'Erro: '+error.message:'Enviamos um link para redefinir a senha.'); },
+  minIA: d => minIA(d.id),
+  minCom: async d => { const i=$('#mcm'); const v=i.value.trim(); if(!v) return; i.value=''; const tx=$('#mtx')?.value, st=$('#mst')?.value; await minUpd(d.id,{},v); minView(d.id); if(tx!=null&&$('#mtx')) $('#mtx').value=tx; if(st&&$('#mst')) $('#mst').value=st; },
+  saveBal: async () => { const p={}; document.querySelectorAll('[data-bal]').forEach(i=>p[i.dataset.bal]=num(i.value)); await balSave(p); toast('Valores salvos'); },
+  transm: async d => { await balSave({transmitido:d.v==='1', transmitidoEm:d.v==='1'?today():''}); toast(d.v==='1'?'Marcado como transmitido':'Marcação desfeita'); },
+  saveTeto: async () => { await setDoc('config','geral',{...S.config, tetoInterino:num($('#teto').value)}); toast('Teto salvo'); }
+};
+document.addEventListener('click', e => {
+  const m = e.target.closest('[data-mact]'); if (m) { runM(m.dataset.mact); return; }
+  if (e.target.id==='modal') { closeModal(); return; }
+  const b = e.target.closest('[data-act]'); if (b && ACT[b.dataset.act]) { e.preventDefault(); ACT[b.dataset.act](b.dataset, b); }
+});
+document.addEventListener('change', async e => {
+  const t = e.target;
+  if (t.id==='sel') { S.cur = t.value; store('serventia',t.value); render(); return; }
+  if (t.dataset.ch==='mes' && t.value) { S.mes = t.value; render(); return; }
+  if (t.dataset.ch==='comp' && t.value) { S.comp = t.value; render(); return; }
+  if (t.dataset.chk) { const id=S.cur+'__'+S.comp; const cur=S.data.balancetes.find(b=>b.id===id)||{}; await balSave({check:{...(cur.check||{}), [t.dataset.chk]:t.checked}}); }
+});
+function route(){ const h = location.hash.slice(1); S.tab = [...TABS.map(t=>t[0]),'cadastros'].includes(h) ? h : 'inicio'; closeModal(); render(); window.scrollTo(0,0); }
+window.addEventListener('hashchange', route);
+S.tab = (()=>{ const h=location.hash.slice(1); return [...TABS.map(t=>t[0]),'cadastros'].includes(h)?h:'inicio'; })();
+boot();
+</script>
+</body>
+</html>
