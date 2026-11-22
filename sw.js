@@ -1,6 +1,6 @@
 // Service worker: guarda o app no aparelho para abrir sem internet.
 // Ao publicar uma nova versão, aumente o número abaixo.
-const VERSION = 'gestao-v1';
+const VERSION = 'gestao-v2';
 const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'];
 
