@@ -759,8 +759,7 @@ function minView(id){
     ${ass?`<label class="f"><span>Etapa</span><select id="mst">${Object.entries(MST).map(([k,[l]])=>`<option value="${k}" ${m.status===k?'selected':''}>${l}</option>`).join('')}</select></label>`:''}
     <h3>Texto da minuta</h3>
     ${ass ? `<textarea id="mtx" style="min-height:260px" class="minuta" placeholder="Redija ou cole a minuta aqui.">${esc(m.texto||'')}</textarea>
-      <div class="row wrap" style="margin:8px 0">${CFG.IA_HABILITADA?'<button class="btn" data-act="minIA" data-id="'+esc(id)+'" id="iabtn">Gerar rascunho com IA</button>':''}<button class="btn" data-act="copyTx">Copiar texto</button></div>
-      <p class="small muted" id="iast">O rascunho gerado é ponto de partida: confira qualificação, dados registrais, tributos e normas antes de entregar.</p>`
+      <div class="row wrap" style="margin:8px 0"><button class="btn" data-act="copyTx">Copiar texto</button></div>`
     : (m.texto ? `<div class="card minuta">${esc(m.texto)}</div><button class="btn" data-act="copy" data-v="${esc(m.texto)}">Copiar minuta</button>` : '<p class="muted">A minuta ainda não foi disponibilizada.</p>')}
     <h3>Histórico</h3>
     ${(m.historico||[]).slice().reverse().map(h=>`<div class="hist"><b>${esc(pname(h.uid, h.nome))}</b> <span class="muted">${new Date(h.em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</span><br>${esc(h.msg)}</div>`).join('')}
@@ -779,18 +778,6 @@ async function minUpd(id, patch, msg){
   const cur = S.data.minutas.find(x=>x.id===id); const h = (cur.historico||[]).concat(msg?[{em:new Date().toISOString(), uid:S.uid||'', nome:meuNome(), msg}]:[]).slice(-100);
   await setDoc('minutas', id, {...clean(cur), ...patch, historico:h});
 }
-async function minIA(id){
-  const ta = $('#mtx'), bt = $('#iabtn'), stEl = $('#iast');
-  if (ta.value.trim() && !ta.dataset.ok){ ta.dataset.ok='1'; stEl.textContent='Já existe texto. Toque de novo para substituí-lo pelo rascunho.'; return; }
-  bt.disabled = true; stEl.textContent = 'Gerando rascunho… pode levar até um minuto.';
-  try {
-    const {data, error} = await sb.functions.invoke('gerar-minuta', {body:{minutaId:id}});
-    if (error) throw error;
-    ta.value = data.text || ''; stEl.textContent = (data.truncated?'O texto foi cortado por tamanho. ':'')+'Rascunho gerado. Revise e toque em Salvar.';
-  } catch(e){ console.error(e); stEl.textContent = 'Não foi possível gerar o rascunho. Verifique se a função gerar-minuta está publicada (README).'; }
-  finally { bt.disabled = false; delete ta.dataset.ok; }
-}
-
 /* ---------- Cadastros ---------- */
 function vCadastros(){
   const SV = [...S.data.serventias].sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
@@ -879,7 +866,6 @@ const ACT = {
   reload: () => location.reload(),
   install: async () => { if (!installEvt) return; installEvt.prompt(); await installEvt.userChoice.catch(()=>{}); installEvt = null; render(); },
   esqueci: async () => { const e = $('#lf [name=email]').value.trim(); if (!e) { toast('Digite seu e-mail primeiro'); return; } const {error} = await sb.auth.resetPasswordForEmail(e, {redirectTo: location.origin+location.pathname}); toast(error?'Erro: '+error.message:'Enviamos um link para redefinir a senha.'); },
-  minIA: d => minIA(d.id),
   minCom: async d => { const i=$('#mcm'); const v=i.value.trim(); if(!v) return; i.value=''; const tx=$('#mtx')?.value, st=$('#mst')?.value; await minUpd(d.id,{},v); minView(d.id); if(tx!=null&&$('#mtx')) $('#mtx').value=tx; if(st&&$('#mst')) $('#mst').value=st; },
   saveBal: async () => { const p={}; document.querySelectorAll('[data-bal]').forEach(i=>p[i.dataset.bal]=num(i.value)); await balSave(p); toast('Valores salvos'); },
   transm: async d => { await balSave({transmitido:d.v==='1', transmitidoEm:d.v==='1'?today():''}); toast(d.v==='1'?'Marcado como transmitido':'Marcação desfeita'); },

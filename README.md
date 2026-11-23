@@ -2,7 +2,7 @@
 
 App de gestão (PWA) para assessoria de serventias extrajudiciais. Atende vários cartórios clientes, e cada um vê só os seus dados.
 
-**Módulos:** Início (pendências e visão geral) · Financeiro (plano de contas COBJUD, regime de caixa) · RH (ASO, férias, avaliação, pasta funcional) · PQTA 2026 (59 itens, pontuação estimada) · Prestação de contas (balancete COBJUD/FERMOJUPI, checklist e prazo do dia 15) · Minutas de atos (pedido → elaboração → revisão → entrega, com rascunho opcional por IA).
+**Módulos:** Início (pendências e visão geral) · Financeiro (plano de contas COBJUD, regime de caixa) · RH (ASO, férias, avaliação, pasta funcional) · PQTA 2026 (59 itens, pontuação estimada) · Prestação de contas (balancete COBJUD/FERMOJUPI, checklist e prazo do dia 15) · Minutas de atos (pedido → elaboração → revisão → entrega).
 
 **Tecnologia:** HTML/JS sem etapa de build + [Supabase](https://supabase.com) (Postgres, login e tempo real). É instalável no celular e abre sem internet em modo somente leitura.
 
@@ -40,17 +40,6 @@ App de gestão (PWA) para assessoria de serventias extrajudiciais. Atende vário
 
 A separação é feita **no próprio banco** (Row Level Security). Mesmo quem tentar acessar a API direto não lê dados de outra serventia.
 
-### 5. (Opcional) Rascunho de minutas com IA
-1. Instale a [Supabase CLI](https://supabase.com/docs/guides/cli) e rode `supabase link` no projeto.
-2. Configure a chave e publique a função:
-   ```bash
-   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-   supabase functions deploy gerar-minuta
-   ```
-3. Em `config.js`, mude `IA_HABILITADA` para `true`.
-
-O botão aparece só para a assessoria. O rascunho deixa entre colchetes os dados que faltam e **sempre precisa de revisão** antes de ser entregue. O uso é cobrado na sua conta da Anthropic. Para trocar o modelo, defina o segredo `ANTHROPIC_MODEL`.
-
 ---
 
 ## Instalar no celular
@@ -67,7 +56,6 @@ config.js                      endereço e chave pública do Supabase
 sw.js, manifest.webmanifest    PWA (offline e instalação)
 icons/                         ícones do app
 supabase/schema.sql            tabelas, regras de acesso e tempo real
-supabase/functions/gerar-minuta  função opcional de IA
 ```
 
 ## Observações
